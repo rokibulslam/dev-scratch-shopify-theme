@@ -1,0 +1,17 @@
+
+<h1 style="color: brown; overflow: hidden">Custom Coding Start Here</h1>
+{% form 'contact' %}
+  {{ form.errors | default_errors }}
+
+  <div className="first-name">
+    <label htmlFor="first-name">First name</label>
+    <input type="text" name="contact[first_name]" id="first-name" />
+  </div>
+
+
+{% endform %}
+
+{% assign product = collections %}
+
+{{product |  json}}
+<h1 style="color: brown;">{{ shop.name }}</h1>

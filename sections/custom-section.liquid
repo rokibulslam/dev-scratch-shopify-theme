@@ -1,0 +1,47 @@
+<div>
+    <h2 class="heading-1">{{ section.settings.message}} </h2>
+</div>
+
+<style>
+    .heading-1 {
+        color:  {{ section.settings.text_color }};
+        background-color: {{ section.settings.background }};
+        
+    },
+    
+</style>
+{% schema %}
+{
+    "name": "custom-section",
+    "tag":"section",
+    "class": "custom-section",
+    "limit":1,
+    "settings":[
+        {    
+            "type": "text",
+            "id": "message",
+            "label": "Message",
+            "default": "Hello!"
+        }, 
+        {
+            "type": "color",
+            "id": "text_color",
+            "label": "Text Color",
+            "default": "#000000"
+        },
+        {
+            "type": "color",
+            "id":"background",
+            "label": "Background",
+            "default": "#ffffff"
+        }
+    ],
+    "presets": [
+    {
+        "name": "Custom Section"
+        
+    }
+]
+}
+
+{% endschema %}

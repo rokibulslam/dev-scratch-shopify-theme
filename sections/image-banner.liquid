@@ -152,7 +152,7 @@
     </div>
   </div>
 </div>
-
+{% render "custom-test" %}
 {% schema %}
 {
   "name": "t:sections.image-banner.name",
@@ -400,7 +400,7 @@
     {
       "type": "text",
       "name": "t:sections.image-banner.blocks.text.name",
-      "limit": 1,
+      "limit": 2,
       "settings": [
         {
           "type": "inline_richtext",
@@ -481,7 +481,8 @@
         {
           "type": "heading"
         },
-        {
+        
+         {
           "type": "text"
         },
         {
