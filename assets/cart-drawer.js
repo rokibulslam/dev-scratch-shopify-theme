@@ -1,126 +1,74 @@
-class CartDrawer extends HTMLElement {
-  constructor() {
-    super();
+import { DialogComponent, DialogOpenEvent } from '@theme/dialog';
+import { CartAddEvent } from '@theme/events';
 
-    this.addEventListener('keyup', (evt) => evt.code === 'Escape' && this.close());
-    this.querySelector('#CartDrawer-Overlay').addEventListener('click', this.close.bind(this));
-    this.setHeaderCartIconAccessibility();
+/**
+ * A custom element that manages a cart drawer.
+ *
+ * @typedef {object} Refs
+ * @property {HTMLDialogElement} dialog - The dialog element.
+ *
+ * @extends {DialogComponent}
+ */
+class CartDrawerComponent extends DialogComponent {
+  /** @type {number} */
+  #summaryThreshold = 0.5;
+
+  connectedCallback() {
+    super.connectedCallback();
+    document.addEventListener(CartAddEvent.eventName, this.#handleCartAdd);
+    this.addEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
   }
 
-  setHeaderCartIconAccessibility() {
-    const cartLink = document.querySelector('#cart-icon-bubble');
-    cartLink.setAttribute('role', 'button');
-    cartLink.setAttribute('aria-haspopup', 'dialog');
-    cartLink.addEventListener('click', (event) => {
-      event.preventDefault();
-      this.open(cartLink)
-    });
-    cartLink.addEventListener('keydown', (event) => {
-      if (event.code.toUpperCase() === 'SPACE') {
-        event.preventDefault();
-        this.open(cartLink);
-      }
-    });
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    document.removeEventListener(CartAddEvent.eventName, this.#handleCartAdd);
+    this.removeEventListener(DialogOpenEvent.eventName, this.#updateStickyState);
   }
 
-  open(triggeredBy) {
-    if (triggeredBy) this.setActiveElement(triggeredBy);
-    const cartDrawerNote = this.querySelector('[id^="Details-"] summary');
-    if (cartDrawerNote && !cartDrawerNote.hasAttribute('role')) this.setSummaryAccessibility(cartDrawerNote);
-    // here the animation doesn't seem to always get triggered. A timeout seem to help
-    setTimeout(() => {this.classList.add('animate', 'active')});
+  #handleCartAdd = () => {
+    if (this.hasAttribute('auto-open')) {
+      this.showDialog();
+    }
+  };
 
-    this.addEventListener('transitionend', () => {
-      const containerToTrapFocusOn = this.classList.contains('is-empty') ? this.querySelector('.drawer__inner-empty') : document.getElementById('CartDrawer');
-      const focusElement = this.querySelector('.drawer__inner') || this.querySelector('.drawer__close');
-      trapFocus(containerToTrapFocusOn, focusElement);
-    }, { once: true });
+  open() {
+    this.showDialog();
 
-    document.body.classList.add('overflow-hidden');
+    /**
+     * Close cart drawer when installments CTA is clicked to avoid overlapping dialogs
+     */
+    customElements.whenDefined('shopify-payment-terms').then(() => {
+      const installmentsContent = document.querySelector('shopify-payment-terms')?.shadowRoot;
+      const cta = installmentsContent?.querySelector('#shopify-installments-cta');
+      cta?.addEventListener('click', this.closeDialog, { once: true });
+    });
   }
 
   close() {
-    this.classList.remove('active');
-    removeTrapFocus(this.activeElement);
-    document.body.classList.remove('overflow-hidden');
+    this.closeDialog();
   }
 
-  setSummaryAccessibility(cartDrawerNote) {
-    cartDrawerNote.setAttribute('role', 'button');
-    cartDrawerNote.setAttribute('aria-expanded', 'false');
+  #updateStickyState() {
+    const { dialog } = /** @type {Refs} */ (this.refs);
+    if (!dialog) return;
 
-    if(cartDrawerNote.nextElementSibling.getAttribute('id')) {
-      cartDrawerNote.setAttribute('aria-controls', cartDrawerNote.nextElementSibling.id);
+    // Refs do not cross nested `*-component` boundaries (e.g., `cart-items-component`), so we query within the dialog.
+    const content = dialog.querySelector('.cart-drawer__content');
+    const summary = dialog.querySelector('.cart-drawer__summary');
+
+    if (!content || !summary) {
+      // Ensure the dialog doesn't get stuck in "unsticky" mode when summary disappears (e.g., empty cart).
+      dialog.setAttribute('cart-summary-sticky', 'false');
+      return;
     }
 
-    cartDrawerNote.addEventListener('click', (event) => {
-      event.currentTarget.setAttribute('aria-expanded', !event.currentTarget.closest('details').hasAttribute('open'));
-    });
-
-    cartDrawerNote.parentElement.addEventListener('keyup', onKeyUpEscape);
-  }
-
-  renderContents(parsedState) {
-    this.querySelector('.drawer__inner').classList.contains('is-empty') && this.querySelector('.drawer__inner').classList.remove('is-empty');
-    this.productId = parsedState.id;
-    this.getSectionsToRender().forEach((section => {
-      const sectionElement = section.selector ? document.querySelector(section.selector) : document.getElementById(section.id);
-      sectionElement.innerHTML =
-          this.getSectionInnerHTML(parsedState.sections[section.id], section.selector);
-    }));
-
-    setTimeout(() => {
-      this.querySelector('#CartDrawer-Overlay').addEventListener('click', this.close.bind(this));
-      this.open();
-    });
-  }
-
-  getSectionInnerHTML(html, selector = '.shopify-section') {
-    return new DOMParser()
-      .parseFromString(html, 'text/html')
-      .querySelector(selector).innerHTML;
-  }
-
-  getSectionsToRender() {
-    return [
-      {
-        id: 'cart-drawer',
-        selector: '#CartDrawer'
-      },
-      {
-        id: 'cart-icon-bubble'
-      }
-    ];
-  }
-
-  getSectionDOM(html, selector = '.shopify-section') {
-    return new DOMParser()
-      .parseFromString(html, 'text/html')
-      .querySelector(selector);
-  }
-
-  setActiveElement(element) {
-    this.activeElement = element;
+    const drawerHeight = dialog.getBoundingClientRect().height;
+    const summaryHeight = summary.getBoundingClientRect().height;
+    const ratio = summaryHeight / drawerHeight;
+    dialog.setAttribute('cart-summary-sticky', ratio > this.#summaryThreshold ? 'false' : 'true');
   }
 }
 
-customElements.define('cart-drawer', CartDrawer);
-
-class CartDrawerItems extends CartItems {
-  getSectionsToRender() {
-    return [
-      {
-        id: 'CartDrawer',
-        section: 'cart-drawer',
-        selector: '.drawer__inner'
-      },
-      {
-        id: 'cart-icon-bubble',
-        section: 'cart-icon-bubble',
-        selector: '.shopify-section'
-      }
-    ];
-  }
+if (!customElements.get('cart-drawer-component')) {
+  customElements.define('cart-drawer-component', CartDrawerComponent);
 }
-
-customElements.define('cart-drawer-items', CartDrawerItems);
