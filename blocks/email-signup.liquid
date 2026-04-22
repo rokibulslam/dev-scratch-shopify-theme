@@ -32,11 +32,11 @@
         autocomplete="email"
         placeholder="{{ 'blocks.email_signup.placeholder' | t }}"
         required
-        {% if form.errors %}
+        {% if form.errors and form.id == blank %}
           autofocus
           aria-invalid="true"
           aria-describedby="Email-signup__message-error-{{ block.id }}"
-        {% elsif form.posted_successfully? %}
+        {% elsif form.posted_successfully? and form.id == blank %}
           aria-describedby="Email-signup__message-success-{{ block.id }}"
         {% endif %}
       >
@@ -62,10 +62,10 @@
       </button>
     </div>
 
-    {%- if form.errors -%}
+    {%- if form.errors and form.id == blank -%}
       <div
         id="Email-signup__message-error-{{ block.id }}"
-        class="email-signup__message email-signup__message--error"
+        class="email-signup__message"
         tabindex="-1"
       >
         <svg
@@ -82,10 +82,10 @@
       </div>
     {%- endif -%}
 
-    {%- if form.posted_successfully? -%}
+    {%- if form.posted_successfully? and form.id == blank -%}
       <div
         id="Email-signup__message-success-{{ block.id }}"
-        class="email-signup__message email-signup__message--success"
+        class="email-signup__message"
         tabindex="-1"
       >
         <span class="svg-wrapper icon-success">
@@ -312,6 +312,8 @@
 
     &.email-signup__button--text.button-unstyled {
       padding-inline: 0;
+      min-width: 44px;
+      min-height: 44px;
     }
 
     &.button-unstyled {

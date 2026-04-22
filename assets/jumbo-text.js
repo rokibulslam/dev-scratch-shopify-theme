@@ -1,10 +1,12 @@
 import { ResizeNotifier, prefersReducedMotion, yieldToMainThread } from '@theme/utilities';
+import { Component } from '@theme/component';
 
 /**
  * A custom element that automatically sizes text to fit its container width.
  */
-class JumboText extends HTMLElement {
+class JumboText extends Component {
   connectedCallback() {
+    super.connectedCallback();
     this.#setIntersectionObserver();
 
     // We need window listener to account for flex containers not shrinking until we reset the font size.
@@ -12,6 +14,7 @@ class JumboText extends HTMLElement {
   }
 
   disconnectedCallback() {
+    super.disconnectedCallback();
     this.#resizeObserver.disconnect();
     this.#intersectionObserver?.disconnect();
 
@@ -86,9 +89,15 @@ class JumboText extends HTMLElement {
       return;
     }
 
+    // The second pass refines the font size based on actual rendered width.
     // The -0.15 was chosen by trial and error. It doesn't influence large font sizes much, but helps smaller ones fit better.
-    const secondPassFontSize =
-      Math.floor(((firstPassFontSize * containerWidth) / secondPassWidestChildWidth) * 100) / 100 - 0.15;
+    // Use Math.min to ensure we never increase beyond the first pass — font rendering is not
+    // perfectly proportional (scaling by 2x doesn't always produce exactly 2x wider text due
+    // to pixel rounding), so the second pass can overshoot.
+    const secondPassFontSize = Math.min(
+      Math.floor(((firstPassFontSize * containerWidth) / secondPassWidestChildWidth) * 100) / 100 - 0.15,
+      firstPassFontSize
+    );
 
     if (secondPassFontSize !== firstPassFontSize) {
       this.style.fontSize = this.#clampFontSize(secondPassFontSize);

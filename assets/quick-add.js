@@ -78,7 +78,8 @@ export class QuickAddComponent extends Component {
   #updateVariantPicker(newHtml) {
     const modalContent = document.getElementById('quick-add-modal-content');
     if (!modalContent) return;
-    const variantPicker = /** @type {VariantPicker} */ (modalContent.querySelector('variant-picker'));
+    const variantPicker = /** @type {VariantPicker | null} */ (modalContent.querySelector('variant-picker'));
+    if (!variantPicker) return;
     variantPicker.updateVariantPicker(newHtml);
   }
 
@@ -117,6 +118,16 @@ export class QuickAddComponent extends Component {
     this.#openQuickAddModal();
   };
 
+  #resetScroll() {
+    const dialogComponent = document.getElementById('quick-add-dialog');
+    if (!(dialogComponent instanceof QuickAddDialog)) return;
+
+    const productDetails = dialogComponent.querySelector('.product-details');
+    const productMedia = dialogComponent.querySelector('.product-information__media');
+    productDetails?.scrollTo({ top: 0, behavior: 'instant' });
+    productMedia?.scrollTo({ top: 0, behavior: 'instant' });
+  }
+
   /** @param {QuickAddDialog} dialogComponent */
   #stayVisibleUntilDialogCloses(dialogComponent) {
     this.toggleAttribute('stay-visible', true);
@@ -133,6 +144,12 @@ export class QuickAddComponent extends Component {
     this.#stayVisibleUntilDialogCloses(dialogComponent);
 
     dialogComponent.showDialog();
+
+    // is nondeterministic when the open attribute is set on the dialog element after .showDialog() is called.
+    // Waiting until the open animation starts seemed to be the most reliable metric here.
+    const dialog = dialogComponent.refs?.dialog;
+    if (!dialog) return;
+    dialog.addEventListener('animationstart', this.#resetScroll.bind(this), { once: true });
   };
 
   #closeQuickAddModal = () => {
