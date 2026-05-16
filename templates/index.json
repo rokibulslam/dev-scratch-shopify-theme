@@ -54,7 +54,10 @@
           "blocks": {}
         }
       },
-      "block_order": ["text_YLPk4p", "button_H9gpTf"],
+      "block_order": [
+        "text_YLPk4p",
+        "button_H9gpTf"
+      ],
       "name": "t:names.hero",
       "settings": {
         "media_type_1": "image",
@@ -379,7 +382,9 @@
                   "blocks": {}
                 }
               },
-              "block_order": ["text_8DmHpe"]
+              "block_order": [
+                "text_8DmHpe"
+              ]
             },
             "accordion_row_gfxdPD": {
               "type": "_accordion-row",
@@ -416,7 +421,9 @@
                   "blocks": {}
                 }
               },
-              "block_order": ["text_TMpyLE"]
+              "block_order": [
+                "text_TMpyLE"
+              ]
             },
             "accordion_row_nLhkic": {
               "type": "_accordion-row",
@@ -455,7 +462,9 @@
                   "blocks": {}
                 }
               },
-              "block_order": ["text_CAfkQC"]
+              "block_order": [
+                "text_CAfkQC"
+              ]
             },
             "accordion_row_KfkNe6": {
               "type": "_accordion-row",
@@ -494,7 +503,9 @@
                   "blocks": {}
                 }
               },
-              "block_order": ["text_hadkP6"]
+              "block_order": [
+                "text_hadkP6"
+              ]
             },
             "accordion_row_hpW37H": {
               "type": "_accordion-row",
@@ -533,7 +544,9 @@
                   "blocks": {}
                 }
               },
-              "block_order": ["text_cay64r"]
+              "block_order": [
+                "text_cay64r"
+              ]
             }
           },
           "block_order": [
@@ -545,7 +558,11 @@
           ]
         }
       },
-      "block_order": ["button_faq", "text_fUPyeW", "accordion_AAr6a6"],
+      "block_order": [
+        "button_faq",
+        "text_fUPyeW",
+        "accordion_AAr6a6"
+      ],
       "name": "t:names.faq_section",
       "settings": {
         "content_direction": "column",
@@ -576,5 +593,9 @@
       }
     }
   },
-  "order": ["hero_jVaWmY", "product_list_fa6P9H", "section_KfXfdR"]
+  "order": [
+    "hero_jVaWmY",
+    "product_list_fa6P9H",
+    "section_KfXfdR"
+  ]
 }

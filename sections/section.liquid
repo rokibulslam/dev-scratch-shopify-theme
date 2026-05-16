@@ -1,11 +1,31 @@
+{% comment %}
+  section.liquid — Generic “Section” (OS 2.0): flexible wrapper configured in the theme editor.
 
+  Runtime (Liquid above the schema JSON):
+  - `content_for 'blocks'` renders every nested block (theme blocks, app blocks, etc.).
+  - Output is captured as `children` and passed into the shared `section` snippet.
+  - `render 'section'` outputs storefront markup: color scheme, optional background media, flex layout,
+    spacing, borders; it inserts `children` in the content area. See snippets/section.liquid.
 
+  Schema block:
+  - Declares block types, disabled_on, and section settings (layout, size, colors, background, padding, presets).
+    Presets are starter layouts in the section picker.
+
+  Notes:
+  - Schema `"class": "section-wrapper"` applies that wrapper class to the section element.
+  - `disabled_on.groups: ["header"]` keeps this section out of the header in the editor.
+
+  Build nested block HTML, then the snippet provides the outer wrapper.
+{% endcomment %}
 {% capture children %}
   {% content_for 'blocks' %}
 {% endcapture %}
 
 {% render 'section', section: section, children: children %}
 
+{% comment %}
+  Theme editor definition only (JSON). Does not output Liquid; Shopify parses it for the customizer UI.
+{% endcomment %}
 {% schema %}
 {
   "name": "t:names.section",

@@ -1,0 +1,60 @@
+<div class="color-{{ section.settings.background_color }} gradient">
+  <h1>{{ section.settings.text }}</h1>
+  {% for block in section.blocks %}
+    {% case block.type %}
+      {% when 'slide' %}
+        <div class="slide" {{ block.shopify_attributes }}>
+          {% if block.settings.image != blank %}
+            {%- capture image_style -%}
+              width: {{ block.settings.image_width }}px; max-width: 100%; height: auto;
+            {%- endcapture -%}
+            {{ block.settings.image | image_url: width: block.settings.image_width | image_tag: style: image_style }}
+          {% endif %}
+        </div>
+    {% endcase %}
+  {% endfor %}
+</div>
+
+{% schema %}
+  {
+    "name": "RK Marquee",
+    "tag": "section",
+    "class": "rk-marquee",
+    "settings": [
+      {
+        "type": "text",
+        "id": "text",
+        "label": "Text",
+        "default": "RK Marquee"
+      }, {
+        "type": "color_scheme",
+        "id": "background_color",
+        "label": "Background Color",
+        "default": "scheme-1"
+      }
+    ],
+    "blocks": [
+      {
+        "name": "Slide",
+        "type": "slide",
+        "settings": [
+          {
+            "type": "image_picker",
+            "id": "image",
+            "label": "Image"
+          }, {
+            "type": "number",
+            "id": "image_width",
+            "label": "Image Width",
+            "default": 248
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "RK Marquee"
+      }
+    ]
+  }
+{% endschema %}
